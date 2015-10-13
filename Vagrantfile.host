@@ -1,0 +1,19 @@
+# -*- mode: ruby -*-
+# vi: set ft=ruby :
+
+$name = ENV['name'] + 'Host'
+
+Vagrant.configure(2) do |config|
+  config.ssh.insert_key = true
+
+  config.vm.box = "ailispaw/docker-root"
+
+  config.vm.provision "docker"
+  config.vm.provision "shell", inline:
+         "ps aux | grep 'sshd:' | awk '{print $2}' | xargs kill"
+
+  config.vm.network "forwarded_port", guest: 80, host: 8080, auto_correct: true
+
+  config.vm.define $name do |it|
+  end
+end
