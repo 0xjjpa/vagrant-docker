@@ -6,7 +6,7 @@ $name = ENV['name']
 Vagrant.configure(2) do |config|
   config.vm.define $name do |app|
     app.vm.provider "docker" do |d|
-      d.build_dir = "."
+      d.build_dir = "../"
       d.ports = ['80:3000']
       d.name = $name
       d.vagrant_vagrantfile = './Vagrantfile.host'
