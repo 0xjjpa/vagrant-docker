@@ -1,0 +1,70 @@
+##### Virtual Dev ######
+
+DEV_SETUP=git@github.com:jjperezaguinaga/vagrant-docker.git
+PROJECT=projectname
+DIST_FOLDER=dist
+
+### Initial Required Tasks ###
+
+init:
+	if ! [ -a .dev-setup ]; then git subtree add --prefix .dev-setup $(DEV_SETUP)  master --squash; fi;
+
+update:
+	if [ -a .dev-setup ]; then git subtree push --prefix .dev-setup $(DEV_SETUP) master; fi;
+
+bootstrap: init
+
+### Virtual Development Workflow ###
+
+# Provision Instructions: Since provisioning is done through Docker, this command isn't called directly
+# Add in this command anything that needs to be next to you dockerfile to work (i.e. self-signed certs, conf)
+
+provision:
+	rm -rf $(DOCKER_FOLDER)
+	mkdir -p $(DOCKER_FOLDER)
+	cp Dockerfile $(DOCKER_FOLDER)
+	cp -r $(DIST_FOLDER) $(DOCKER_FOLDER)
+
+# Vagrant Instructions: Instead of using “vagrant” directly, call “make” to leverage docker commands.
+# i.e vagrant up = make up
+# In case of total destroy, you need to use ‘global-status’ to get the ID of the host machine,
+# otherwise vagrant only destroys container on “make destroy”
+
+up:
+	DOCKER_FOLDER=docker make provision
+	PROJECT=$(PROJECT) make -C .dev-setup up
+
+status:
+	DOCKER_FOLDER=docker make provision
+	PROJECT=$(PROJECT) make -C .dev-setup status
+
+destroy:
+	DOCKER_FOLDER=docker make provision
+	PROJECT=$(PROJECT) make -C .dev-setup destroy $(ID)
+
+global-status:
+	DOCKER_FOLDER=docker make provision
+	PROJECT=$(PROJECT) make -C .dev-setup global-status
+
+reload:
+	DOCKER_FOLDER=docker make provision
+	PROJECT=$(PROJECT) make -C .dev-setup reload
+
+logs:
+	DOCKER_FOLDER=docker make provision
+	PROJECT=$(PROJECT) make -C .dev-setup logs
+
+### CI/CD ###
+
+# CI Instructions: Replace CI instructions to be used in your CI system such as builds or tests
+# If you have already a build process like gulp or bundle, you can append those in a “make build”
+# and then on the ci just add ‘build’ i.e. ci: build
+
+ci: 
+	echo "Add CI instructions like build, tests"
+
+# CD Instructions: On your ci system, add “make cd” and the perform any cloud application delivery actions on the project
+# e.g. make cd; cd projectname; heroku deploy
+
+cd: ci
+	DOCKER_FOLDER=$(PROJECT) make provision
