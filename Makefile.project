@@ -1,6 +1,6 @@
 ##### Virtual Dev ######
 
-DEV_SETUP=git@github.com:jjperezaguinaga/vagrant-docker.git
+DEV_SETUP=https://github.com/jjperezaguinaga/vagrant-docker.git
 PROJECT=projectname
 DIST_FOLDER=dist
 
